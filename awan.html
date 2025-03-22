@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wanzofc Qur'an</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
+            color: #eee;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        #splash-screen {
+            text-align: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #1a1a1a;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s ease-out;
+        }
+
+        #splash-screen h1 {
+            font-size: 4em;
+            margin-bottom: 0.5em;
+            font-family: 'Arial', sans-serif;
+            animation: fadeIn 2s ease-in-out;
+        }
+
+        #splash-screen p {
+            font-size: 1.2em;
+            margin-bottom: 2em;
+            color: #aaa;
+            animation: fadeIn 3s ease-in-out;
+        }
+
+        #continue-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.2em;
+            display: inline-flex;
+            align-items: center;
+            transition: background-color: 0.3s, transform 0.2s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        #continue-button i {
+            margin-right: 10px;
+        }
+
+        #continue-button:hover {
+            background-color: #367c39;
+            transform: scale(1.05);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        #main-content {
+            display: none;
+            width: 90%;
+            max-width: 1200px;
+            margin: 2em auto;
+            padding: 2em;
+            background-color: #222;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            overflow: auto;
+            height: 85vh;
+            position: relative;
+        }
+
+        #main-content h2 {
+            font-size: 2.5em;
+            margin-bottom: 0.5em;
+            color: #4CAF50;
+            text-align: center;
+        }
+
+        #surah-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #333;
+            border-radius: 10px;
+        }
+
+        .surah-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .surah-button i {
+            margin-right: 5px;
+        }
+
+        .surah-button:hover {
+            background-color: #367c39;
+        }
+
+        .surah-button.active {
+            background-color: #275129;
+            font-weight: bold;
+        }
+
+        .ayat {
+            margin-bottom: 1.5em;
+            padding: 1.5em;
+            border-left: 4px solid #4CAF50;
+            background-color: #333;
+            border-radius: 8px;
+            position: relative;
+        }
+
+        .ayat-number {
+            font-weight: bold;
+            color: #4CAF50;
+            margin-right: 0.5em;
+            position: absolute;
+            top: 1.5em;
+            left: 1.5em;
+        }
+
+        .ayat-text-arabic {
+            font-size: 28px;
+            font-family: 'Arial', sans-serif;
+            text-align: right;
+            margin-bottom: 0.5em;
+            line-height: 1.8;
+            padding-left: 40px;
+        }
+
+        .ayat-text-latin {
+            font-size: 18px;
+            font-style: italic;
+            color: #bbb;
+            padding-left: 40px;
+            margin-bottom: 0.5em;
+        }
+
+        .ayat-text-translation {
+            font-size: 16px;
+            color: #aaa;
+            padding-left: 40px;
+        }
+
+        #surah-info {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        #audio-player-container {
+            background-color: #444;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        #audio-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        #play-pause-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 1.2em;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.3s;
+        }
+
+        #play-pause-button:hover {
+            background-color: #367c39;
+        }
+
+        #progress-bar-container {
+            width: 70%;
+            height: 10px;
+            background-color: #777;
+            border-radius: 5px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        #progress-bar {
+            width: 0;
+            height: 100%;
+            background-color: #4CAF50;
+            border-radius: 5px;
+            position: absolute;
+            transition: width 0.1s linear;
+        }
+
+        #current-time, #total-time {
+            color: #ccc;
+            font-size: 0.8em;
+        }
+
+        .hljs {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 0.5em;
+            border-radius: 5px;
+            line-height: 1.4;
+        }
+
+        .ayat-text-arabic .hljs {
+            padding-right: 0px;
+        }
+
+        #loading-indicator {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        #loading-progress {
+            width: 100%;
+            max-width: 300px;
+            height: 10px;
+            background-color: #777;
+            border-radius: 5px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        #loading-bar {
+            width: 0;
+            height: 100%;
+            background-color: #4CAF50;
+            border-radius: 5px;
+            position: absolute;
+            transition: width 0.2s ease-out;
+        }
+
+        #loading-percent {
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div id="splash-screen">
+        <h1>بِسْمِ ٱللَّٰهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</h1>
+        <p>Wanzofc Qur'an <i class="fas fa-quran"></i></p>
+        <button id="continue-button"><i class="fas fa-arrow-right"></i> Lanjut</button>
+    </div>
+
+    <div id="main-content">
+        <h2><i class="fas fa-book-open"></i> Pilih Surah</h2>
+        <div id="surah-buttons"></div>
+
+        <div id="surah-info"></div>
+
+        <div id="audio-player-container">
+            <div id="audio-controls">
+                <button id="play-pause-button"><i class="fas fa-play"></i></button>
+                <div id="progress-bar-container">
+                    <div id="progress-bar"></div>
+                </div>
+                <span id="current-time">00:00</span> / <span id="total-time">00:00</span>
+            </div>
+            <audio id="audio-element"></audio>
+        </div>
+
+        <div id="loading-indicator" style="display: none;">
+            <div id="loading-progress">
+                <div id="loading-bar"></div>
+            </div>
+            <div id="loading-percent">0%</div>
+        </div>
+
+        <div id="quran-container"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        const continueButton = document.getElementById('continue-button');
+        const splashScreen = document.getElementById('splash-screen');
+        const mainContent = document.getElementById('main-content');
+        const quranContainer = document.getElementById('quran-container');
+        const surahButtonsContainer = document.getElementById('surah-buttons');
+        const surahInfo = document.getElementById('surah-info');
+        const loadingIndicator = document.getElementById('loading-indicator');
+        const loadingBar = document.getElementById('loading-bar');
+        const loadingPercent = document.getElementById('loading-percent');
+
+        const audioElement = document.getElementById('audio-element');
+        const playPauseButton = document.getElementById('play-pause-button');
+        const progressBarContainer = document.getElementById('progress-bar-container');
+        const progressBar = document.getElementById('progress-bar');
+        const currentTimeDisplay = document.getElementById('current-time');
+        const totalTimeDisplay = document.getElementById('total-time');
+
+        let currentSurah = null;
+        let playlist = [];
+        let currentAyahIndex = 0;
+        let isPlaying = false;
+
+        const surahList = [
+            { number: 1, name: "Al-Fatihah", icon: "fas fa-book-open" },
+            { number: 2, name: "Al-Baqarah", icon: "fas fa-book-open" },
+            { number: 3, name: "Ali 'Imran", icon: "fas fa-book-open" },
+            { number: 18, name: "Al-Kahf", icon: "fas fa-book-open" },
+            { number: 36, name: "Yasin", icon: "fas fa-book-open" },
+            { number: 55, name: "Ar-Rahman", icon: "fas fa-book-open" },
+            { number: 56, name: "Al-Waqi'ah", icon: "fas fa-book-open" },
+            { number: 67, name: "Al-Mulk", icon: "fas fa-book-open" },
+            { number: 78, name: "An-Naba'", icon: "fas fa-book-open" },
+            { number: 112, name: "Al-Ikhlas", icon: "fas fa-book-open" },
+            { number: 113, name: "Al-Falaq", icon: "fas fa-book-open" },
+            { number: 114, name: "An-Nas", icon: "fas fa-book-open" },
+        ];
+
+        function createSurahButtons() {
+            surahList.forEach(surah => {
+                const button = document.createElement('button');
+                button.classList.add('surah-button');
+                button.innerHTML = `<i class="${surah.icon}"></i> ${surah.name}`;
+                button.dataset.surahNumber = surah.number;
+
+                button.addEventListener('click', () => {
+                    getSurah(surah.number);
+                    document.querySelectorAll('.surah-button').forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                });
+
+                surahButtonsContainer.appendChild(button);
+            });
+        }
+
+        async function getSurah(surahNumber) {
+            if (currentSurah === surahNumber) {
+                return;
+            }
+
+            currentSurah = surahNumber;
+            loadingIndicator.style.display = 'block';
+            loadingBar.style.width = '0%';
+            loadingPercent.textContent = '0%';
+            quranContainer.innerHTML = '';
+            surahInfo.innerHTML = "";
+            audioElement.pause();
+            audioElement.currentTime = 0;
+            currentAyahIndex = 0;
+            playlist = [];
+            isPlaying = false;
+            updatePlayPauseButton();
+
+            try {
+                const response = await fetch(`https://api.alquran.cloud/v1/surah/${surahNumber}/editions/ar.alafasy,en.transliteration,id.indonesian`);
+                const data = await response.json();
+
+                if (data.code !== 200) {
+                    throw new Error(`Error: ${data.status}`);
+                }
+
+                const surah = data.data[0];
+                const transliteration = data.data[1];
+                const translation = data.data[2];
+
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += 10;
+                    loadingBar.style.width = `${progress}%`;
+                    loadingPercent.textContent = `${progress}%`;
+
+                    if (progress >= 100) {
+                        clearInterval(interval);
+                        loadingIndicator.style.display = 'none';
+
+                        playlist = surah.ayahs.map(ayah => ayah.audio);
+                        audioElement.src = playlist[currentAyahIndex];
+
+                        surahInfo.innerHTML = `
+                            <p><strong>${surah.englishName}</strong> (${surah.name})</p>
+                            <p>Jumlah Ayat: ${surah.numberOfAyahs}</p>
+                            <p>Tipe: ${surah.revelationType}</p>
+                        `;
+
+                        surah.ayahs.forEach((ayah, index) => {
+                            const ayatElement = document.createElement('div');
+                            ayatElement.classList.add('ayat');
+                            ayatElement.innerHTML = `
+                                <span class="ayat-number">${ayah.numberInSurah}</span>
+                                <p class="ayat-text-arabic"><pre><code>${ayah.text}</code></pre></p>
+                                <p class="ayat-text-latin">${transliteration.ayahs[index].text}</p>
+                                <p class="ayat-text-translation">${translation.ayahs[index].text}</p>
+                            `;
+                            quranContainer.appendChild(ayatElement);
+                        });
+
+                        hljs.highlightAll();
+                    }
+                }, 100);
+
+            } catch (error) {
+                quranContainer.innerHTML = `<p style="color: red;">Gagal memuat data. Error: ${error.message}</p>`;
+                loadingIndicator.style.display = 'none';
+                resetAudioPlayer();
+            }
+        }
+
+        function playAudio() {
+            audioElement.play();
+            isPlaying = true;
+            updatePlayPauseButton();
+        }
+
+        function pauseAudio() {
+            audioElement.pause();
+            isPlaying = false;
+            updatePlayPauseButton();
+        }
+
+        function updatePlayPauseButton() {
+            playPauseButton.innerHTML = isPlaying ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
+        }
+
+        function updateProgressBar() {
+            if (audioElement.duration) {
+                const progress = (audioElement.currentTime / audioElement.duration) * 100;
+                progressBar.style.width = `${progress}%`;
+                currentTimeDisplay.textContent = formatTime(audioElement.currentTime);
+                totalTimeDisplay.textContent = formatTime(audioElement.duration);
+            }
+        }
+
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = Math.floor(seconds % 60);
+            return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+        }
+
+        function seekAudio(event) {
+            const progressBarWidth = progressBarContainer.clientWidth;
+            const clickPosition = event.offsetX;
+            const seekTime = (clickPosition / progressBarWidth) * audioElement.duration;
+            audioElement.currentTime = seekTime;
+            currentTimeDisplay.textContent = formatTime(audioElement.currentTime);
+        }
+
+        function playNextAyah() {
+            currentAyahIndex++;
+            if (currentAyahIndex < playlist.length) {
+                audioElement.src = playlist[currentAyahIndex];
+                playAudio();
+            } else {
+                resetAudioPlayer();
+            }
+        }
+
+        function resetAudioPlayer() {
+            audioElement.pause();
+            audioElement.currentTime = 0;
+            currentAyahIndex = 0;
+            progressBar.style.width = "0%";
+            currentTimeDisplay.textContent = "00:00";
+            totalTimeDisplay.textContent = "00:00";
+            isPlaying = false;
+            updatePlayPauseButton();
+        }
+
+        continueButton.addEventListener('click', () => {
+            splashScreen.style.opacity = '0';
+
+            Swal.fire({
+                title: 'Bismillah',
+                text: 'Harap membaca Bismillah sebelum memulai.',
+                icon: 'info',
+                confirmButtonText: 'Oke',
+                confirmButtonColor: '#4CAF50',
+                background: '#333',
+                color: '#eee',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    setTimeout(() => {
+                        splashScreen.style.display = 'none';
+                        mainContent.style.display = 'block';
+                        document.body.style.overflow = 'auto';
+                        createSurahButtons();
+                        getSurah(1);
+                    }, 500);
+                }
+            });
+        });
+
+        playPauseButton.addEventListener('click', () => {
+            if (isPlaying) {
+                pauseAudio();
+            } else {
+                playAudio();
+            }
+        });
+
+        audioElement.addEventListener('timeupdate', updateProgressBar);
+        progressBarContainer.addEventListener('click', seekAudio);
+        audioElement.addEventListener('ended', playNextAyah);
+    </script>
+</body>
+</html>
